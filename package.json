@@ -1,0 +1,19 @@
+{
+  "name": "data-extract",
+  "version": "1.0.0",
+  "description": "Extract contest data from external provider",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pick-em/data-extract.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pick-em/data-extract/issues"
+  },
+  "homepage": "https://github.com/pick-em/data-extract#readme"
+}
