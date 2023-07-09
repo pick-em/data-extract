@@ -13,4 +13,12 @@ module.exports = {
   },
   plugins: ['@typescript-eslint'],
   root: true,
+  rules: {
+    "@typescript-eslint/no-floating-promises": [2,
+      {
+        ignoreVoid: true,
+        ignoreIIFE: true,
+      }
+  ]
+  }
 };
