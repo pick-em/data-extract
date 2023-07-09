@@ -2,9 +2,10 @@
   "name": "data-extract",
   "version": "1.0.0",
   "description": "Extract contest data from external provider",
-  "main": "index.js",
+  "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsc -w",
+    "build": "tsc"
   },
   "repository": {
     "type": "git",
@@ -15,5 +16,9 @@
   "bugs": {
     "url": "https://github.com/pick-em/data-extract/issues"
   },
-  "homepage": "https://github.com/pick-em/data-extract#readme"
+  "homepage": "https://github.com/pick-em/data-extract#readme",
+  "devDependencies": {
+    "@types/node": "^20.4.1",
+    "typescript": "^5.1.6"
+  }
 }
