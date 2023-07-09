@@ -1,9 +1,8 @@
-import { fileURLToPath } from 'url';
 import path from 'path';
 import fs from 'fs/promises';
 import axios from 'axios';
 
-import { delayedIterator } from '../utils/index.js';
+import { delayedIterator, getOutputDataRootDir } from '../utils/index.js';
 
 interface TeamsData {
   count: number;
@@ -17,34 +16,8 @@ interface TeamRef {
   $ref: string;
 }
 
-const TODAY_DATE = new Date();
-const TODAY_DATE_STRING = `${TODAY_DATE.getUTCFullYear()}-${
-  TODAY_DATE.getUTCMonth() + 1
-}-${TODAY_DATE.getUTCDate()}`;
-
-const __filname = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filname);
-const DATA_DIR = path.resolve(__dirname, '../../data');
-const OUTPUT_DIR = `${DATA_DIR}/${TODAY_DATE_STRING}/teams`;
-
-async function mkdirpIfNoExist(dir: string) {
-  const pathParts = dir.split('/');
-  let testPath = '';
-  pathParts.forEach(async (part) => {
-    testPath += `${part}/`;
-    await mkdirIfNoExist(testPath);
-  });
-}
-
-async function mkdirIfNoExist(dir: string) {
-  try {
-    const noAccess = await fs.access(dir);
-  } catch (err) {
-    await fs.mkdir(dir);
-  }
-}
-
-await mkdirpIfNoExist(OUTPUT_DIR);
+const TEAMS_OUTPUT_DIR = path.join(getOutputDataRootDir(), '/teams');
+await fs.mkdir(TEAMS_OUTPUT_DIR, { recursive: true });
 
 (async function fetchTeams() {
   const response = await axios.get(
@@ -82,5 +55,8 @@ async function fetchTeam(team: TeamRef) {
 
   const data = response.data;
 
-  await fs.writeFile(`${OUTPUT_DIR}/${data.slug}.json`, JSON.stringify(data));
+  await fs.writeFile(
+    `${TEAMS_OUTPUT_DIR}/${data.id}-${data.slug}.json`,
+    JSON.stringify(data),
+  );
 }
