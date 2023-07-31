@@ -7,6 +7,8 @@ import {
   SeasonWeekEventList,
   SeasonWeekList,
   Event,
+  SeasonTeamsList,
+  Team,
 } from './types.js';
 
 const ESPN_API_ROOT = 'https://sports.core.api.espn.com/v2/sports';
@@ -103,6 +105,35 @@ async function fetchEvent(eventId: number): Promise<Event | null> {
   const url = `/events/${eventId}`;
   try {
     const response: AxiosResponse<Event> = await axiosInstance.get(url);
+    return response.data;
+  } catch (error) {
+    handleError(error);
+    return null;
+  }
+}
+
+async function fetchTeamList(season?: number): Promise<SeasonTeamsList | null> {
+  const url = season ? `/seasons/${season}/teams` : `/teams`;
+  try {
+    const response: AxiosResponse<SeasonTeamsList> = await axiosInstance.get(
+      url,
+    );
+    return response.data;
+  } catch (error) {
+    handleError(error);
+    return null;
+  }
+}
+
+async function fetchTeam(
+  teamId: string,
+  season?: string,
+): Promise<Team | null> {
+  const url = season
+    ? `/seasons/${season}/teams/${teamId}`
+    : `/teams/${teamId}`;
+  try {
+    const response: AxiosResponse<Team> = await axiosInstance.get(url);
     return response.data;
   } catch (error) {
     handleError(error);

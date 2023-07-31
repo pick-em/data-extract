@@ -3,7 +3,7 @@ interface GenericApiObject {
   $meta?: object;
 }
 
-interface GenericList<Type> extends GenericApiObject {
+interface GenericApiList<Type> extends GenericApiObject {
   count: number;
   pageIndex: number;
   pageCount: number;
@@ -16,7 +16,7 @@ export interface Season extends GenericApiObject {
   endDate: string;
   displayName: string;
   type: object;
-  types: GenericList<SeasonType>;
+  types: GenericApiList<SeasonType>;
   rankings: GenericApiObject;
   athletes: GenericApiObject;
   futures: GenericApiObject;
@@ -36,7 +36,7 @@ export interface SeasonType extends GenericApiObject {
   corrections: GenericApiObject;
 }
 
-export type SeasonWeekList = GenericList<GenericApiObject>;
+export type SeasonWeekList = GenericApiList<GenericApiObject>;
 
 export interface SeasonWeek extends GenericApiObject {
   number: number;
@@ -48,7 +48,7 @@ export interface SeasonWeek extends GenericApiObject {
   talentPicks: GenericApiObject;
 }
 
-export type SeasonWeekEventList = GenericList<GenericApiObject>;
+export type SeasonWeekEventList = GenericApiList<GenericApiObject>;
 
 export interface Event extends GenericApiObject {
   id: string;
@@ -75,4 +75,59 @@ interface CompetitorTeam extends GenericApiObject {
   record: GenericApiObject;
   previousCompetition: GenericApiObject;
   nextCompetition: GenericApiObject;
+}
+
+export type SeasonTeamsList = GenericApiList<GenericApiObject>;
+
+export interface Team extends GenericApiObject {
+  id: string;
+  guid: string;
+  uid: string;
+  slug: string;
+  location: string;
+  name: string;
+  nickname: string;
+  abbreviation: string;
+  displayName: string;
+  shortDisplayName: string;
+  color: string;
+  alternateColor: string;
+  isActive: boolean;
+  logos: ApiImage[];
+  record: GenericApiObject;
+  athletes: GenericApiObject;
+  venue: Venue;
+  groups: GenericApiObject;
+  ranks: GenericApiObject;
+  injuries: GenericApiObject;
+  notes: GenericApiObject;
+  againstTheSpreadRecords: GenericApiObject;
+  franchise: GenericApiObject;
+  depthCharts: GenericApiObject;
+  events: GenericApiObject;
+  coaches: GenericApiObject;
+  links: object[];
+}
+
+interface ApiImage {
+  href: string;
+  width: number;
+  height: number;
+  alt: string;
+  rel: string[];
+  lastUpdated: string;
+}
+
+interface Venue extends GenericApiObject {
+  id: string;
+  fullName: string;
+  address: {
+    city: string;
+    state: string;
+    zipCode: string;
+  };
+  capacity: number;
+  grass: boolean;
+  indoor: boolean;
+  images: ApiImage[];
 }
