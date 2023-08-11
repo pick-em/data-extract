@@ -1,62 +1,39 @@
-import path from 'path';
-import fs from 'fs/promises';
-import axios from 'axios';
+import 'dotenv/config';
+import { Storage } from '@google-cloud/storage';
 
-import { delayedIterator, getOutputDataRootDir } from '../utils/index.js';
+import { delayedIterator } from '../utils/index.js';
+import { fetchTeamList, fetchTeam } from '../api/client.js';
 
-interface TeamsData {
-  count: number;
-  pageIndex: number;
-  pageSize: number;
-  pageCount: number;
-  items: TeamRef[];
-}
-
-interface TeamRef {
-  $ref: string;
-}
-
-const TEAMS_OUTPUT_DIR = path.join(getOutputDataRootDir(), '/teams');
-await fs.mkdir(TEAMS_OUTPUT_DIR, { recursive: true });
-
-(async function fetchTeams() {
-  const response = await axios.get(
-    'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/teams?limit=50',
+export async function fetchTeams() {
+  const jobId = 'fetch-teams';
+  const time = new Date();
+  const storage = new Storage({
+    projectId: process.env.GCP_PROJECT_ID,
+  });
+  const bucket = storage.bucket(
+    process.env.GCP_DATA_EXTRACT_BUCKET_NAME as string,
   );
 
-  if (response.status != 200) {
-    console.log('[fetchTeams] API Request Failed', {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    });
-    return;
+  const teamsList = await fetchTeamList();
+  if (!teamsList) {
+    throw new Error('Failed to fetch teamsList');
   }
 
-  const data = response.data as TeamsData;
-  const teams = data.items;
+  await bucket
+    .file(`${jobId}/${time.toISOString()}/teams-list.json`)
+    .save(JSON.stringify(teamsList));
+  console.log(`SAVED = ${jobId}/${time.toISOString()}/teams-list.json`);
 
-  for await (const team of delayedIterator(teams, 1000)) {
-    await fetchTeam(team);
+  for await (const { $ref } of delayedIterator(teamsList.items, 300)) {
+    const team = await fetchTeam({ $ref });
+    if (!team) {
+      throw new Error(`Failed to fetch team ${$ref}`);
+    }
+    await bucket
+      .file(`${jobId}/${time.toISOString()}/${team.id}-${team.slug}.json`)
+      .save(JSON.stringify(team));
+    console.log(
+      `SAVED = ${jobId}/${time.toISOString()}/${team.id}-${team.slug}.json`,
+    );
   }
-})();
-
-async function fetchTeam(team: TeamRef) {
-  const response = await axios.get(team.$ref);
-
-  if (response.status != 200) {
-    console.log('[fetchTeam] API Request Failed', {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    });
-    return;
-  }
-
-  const data = response.data;
-
-  await fs.writeFile(
-    `${TEAMS_OUTPUT_DIR}/${data.id}-${data.slug}.json`,
-    JSON.stringify(data),
-  );
 }
