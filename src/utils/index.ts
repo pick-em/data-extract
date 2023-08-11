@@ -13,13 +13,13 @@ export async function* delayedIterator(array: any[], ms: number) {
 }
 
 export function getOutputDataRootDir() {
-  const date = new Date();
-  const dateString = `${date.getUTCFullYear()}-${
-    date.getUTCMonth() + 1
-  }-${date.getUTCDate()}`;
-
   const __filname = fileURLToPath(import.meta.url);
   const __dirname = path.dirname(__filname);
-  const dataDir = path.resolve(__dirname, '../../data');
-  return `${dataDir}/${dateString}/${date.toISOString()}`;
+  return path.resolve(__dirname, '../../data');
+}
+
+export function getOutputDataDirForType(type: string) {
+  const date = new Date();
+  const root = getOutputDataRootDir();
+  return `${root}/${type}/${date.toISOString()}`;
 }

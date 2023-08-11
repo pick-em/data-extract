@@ -1,7 +1,3 @@
-console.log(`pickem.football!!!!`);
+import { fetchTeams } from './lib/fetch-teams.js';
 
-const foo: object = {
-  bar: 42,
-};
-
-console.log(foo);
+await fetchTeams();
