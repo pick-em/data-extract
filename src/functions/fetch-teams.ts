@@ -1,8 +1,14 @@
+import * as functions from '@google-cloud/functions-framework';
+
 import { fetchTeamList, fetchTeam } from '../api/client.js';
 import { uploadJSON } from '../lib/cloud-storage.js';
 import { delayedIterator } from '../utils/index.js';
 
-export async function fetchTeams() {
+functions.cloudEvent('fetchTeams', async (cloudEvent) => {
+  console.log('CLOUDEVENT');
+  console.log(cloudEvent);
+  console.log('-------------------------------');
+
   const teamsList = await fetchTeamList();
   if (!teamsList) {
     throw new Error('Failed to fetch teamsList');
@@ -18,4 +24,4 @@ export async function fetchTeams() {
 
     await uploadJSON(`${team.id}-${team.slug}.json`, team);
   }
-}
+});

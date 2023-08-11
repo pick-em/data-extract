@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "tsc -w",
-    "build": "tsc"
+    "build": "tsc",
+    "functions-framework": "functions-framework --target=$npm_config_name [--signature-type=cloudevent]"
   },
   "repository": {
     "type": "git",
@@ -28,6 +29,7 @@
     "typescript": "^5.1.6"
   },
   "dependencies": {
+    "@google-cloud/functions-framework": "^3.3.0",
     "@google-cloud/storage": "^7.0.1",
     "axios": "^1.4.0",
     "dotenv": "^16.3.1"

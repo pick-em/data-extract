@@ -1,5 +1,3 @@
 import 'dotenv/config';
 
-import { fetchTeams } from './functions/fetch-teams.js';
-
-await fetchTeams();
+import './functions/fetch-teams.js';
