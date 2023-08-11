@@ -11,3 +11,5 @@ coverage/*
 
 .eslintrc.js
 data/*
+
+.env
