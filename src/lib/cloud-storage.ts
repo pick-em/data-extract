@@ -1,4 +1,20 @@
+import winston from 'winston';
+import { LoggingWinston } from '@google-cloud/logging-winston';
 import { Storage } from '@google-cloud/storage';
+
+const log = winston.createLogger({
+  level: 'info',
+  defaultMeta: {
+    service: `cloud-storage`,
+  },
+  transports: [
+    // new winston.transports.Console(),
+    new LoggingWinston({
+      projectId: process.env.GCP_PROJECT_ID,
+      redirectToStdout: true,
+    }),
+  ],
+});
 
 const storage = new Storage({
   projectId: process.env.GCP_PROJECT_ID,
@@ -19,13 +35,12 @@ export async function uploadJSON(filename: string, data: object) {
   }
 
   try {
-    console.info(`Saving data to uploadPath=${uploadPath}`);
+    log.info(`Saving data to uploadPath=${uploadPath}`);
     await bucket.file(uploadPath).save(JSON.stringify(data));
-    console.info(`Successfully saved data to uploadPath=${uploadPath}`);
+    log.info(`Successfully saved data to uploadPath=${uploadPath}`);
   } catch (error) {
-    console.error(`Failed to upload to GCS bucket uploadPath=${uploadPath}`);
-    console.error(error);
+    log.error(`Failed to upload to GCS bucket uploadPath=${uploadPath}`, {
+      error,
+    });
   }
-
-  return;
 }
