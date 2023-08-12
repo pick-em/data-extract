@@ -56,7 +56,7 @@ export async function fetchSeasonType(
 
 export async function fetchSeasonWeekList(
   year: number,
-  seasonType: number,
+  seasonType: number | string,
 ): Promise<SeasonWeekList | null> {
   const url = `/seasons/${year}/types/${seasonType}/weeks`;
   try {
@@ -70,14 +70,25 @@ export async function fetchSeasonWeekList(
   }
 }
 
+interface FetchSeasonWeekOptions {
+  year?: number;
+  seasonType?: number;
+  week?: number;
+  $ref?: string;
+}
 export async function fetchSeasonWeek(
-  year: number,
-  seasonType: number,
-  week: number,
+  options: FetchSeasonWeekOptions,
 ): Promise<SeasonWeek | null> {
-  const url = `/seasons/${year}/types/${seasonType}/weeks/${week}`;
+  const { year, seasonType, week, $ref } = options;
+
   try {
-    const response: AxiosResponse<SeasonWeek> = await axiosInstance.get(url);
+    let response: AxiosResponse<SeasonWeek>;
+    if ($ref) {
+      response = await axios.get($ref);
+    } else {
+      const url = `/seasons/${year}/types/${seasonType}/weeks/${week}`;
+      response = await axiosInstance.get(url);
+    }
     return response.data;
   } catch (error) {
     handleError(error);
@@ -85,15 +96,25 @@ export async function fetchSeasonWeek(
   }
 }
 
+interface FetchSeasonWeekEventListOptions {
+  year?: number;
+  seasonType?: number;
+  week?: number;
+  $ref?: string;
+}
 export async function fetchSeasonWeekEventList(
-  year: number,
-  seasonType: number,
-  week: number,
+  options: FetchSeasonWeekEventListOptions,
 ): Promise<SeasonWeekEventList | null> {
-  const url = `/seasons/${year}/types/${seasonType}/weeks/${week}/events`;
+  const { year, seasonType, week, $ref } = options;
+
   try {
-    const response: AxiosResponse<SeasonWeekEventList> =
-      await axiosInstance.get(url);
+    let response: AxiosResponse<SeasonWeekEventList>;
+    if ($ref) {
+      response = await axios.get($ref);
+    } else {
+      const url = `/seasons/${year}/types/${seasonType}/weeks/${week}/events`;
+      response = await axiosInstance.get(url);
+    }
     return response.data;
   } catch (error) {
     handleError(error);
@@ -101,10 +122,23 @@ export async function fetchSeasonWeekEventList(
   }
 }
 
-export async function fetchEvent(eventId: number): Promise<Event | null> {
-  const url = `/events/${eventId}`;
+interface FetchEventOptions {
+  eventId?: number;
+  $ref?: string;
+}
+export async function fetchEvent(
+  options: FetchEventOptions,
+): Promise<Event | null> {
+  const { eventId, $ref } = options;
+
   try {
-    const response: AxiosResponse<Event> = await axiosInstance.get(url);
+    let response: AxiosResponse<Event>;
+    if ($ref) {
+      response = await axios.get($ref);
+    } else {
+      const url = `/events/${eventId}`;
+      response = await axiosInstance.get(url);
+    }
     return response.data;
   } catch (error) {
     handleError(error);

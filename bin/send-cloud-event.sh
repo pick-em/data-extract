@@ -12,7 +12,7 @@ curl localhost:8080 \
         "message": {
           "data": "d29ybGQ=",
           "attributes": {
-             "attr1":"attr1-value"
+             "seasonType":1
           }
         },
         "subscription": "projects/MY-PROJECT/subscriptions/MY-SUB"

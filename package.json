@@ -5,9 +5,10 @@
   "main": "dist/index.js",
   "type": "module",
   "scripts": {
-    "dev": "tsc -w",
     "build": "tsc",
-    "functions-framework": "functions-framework --target=fetchTeams --signature-type=cloudevent"
+    "deploy-function": "./bin/deploy-function.sh $npm_config_function",
+    "dev": "tsc -w",
+    "functions-framework": "functions-framework --target=$npm_config_name --signature-type=cloudevent"
   },
   "repository": {
     "type": "git",
@@ -20,6 +21,7 @@
   },
   "homepage": "https://github.com/pick-em/data-extract#readme",
   "devDependencies": {
+    "@google/events": "^5.4.0",
     "@types/node": "^20.4.1",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
