@@ -27,7 +27,7 @@ const bucket = storage.bucket(
 const RUN_TIME = new Date();
 
 export async function uploadJSON(filename: string, data: object) {
-  let uploadPath = `${process.env.JOB_ID_FETCH_TEAMS}`;
+  let uploadPath = `${process.env.JOB_ID}`;
   uploadPath += `/${RUN_TIME.toISOString()}`;
   uploadPath += `/${filename}`;
   if (!filename.endsWith('.json')) {
