@@ -9,7 +9,7 @@ import {
   Event,
   SeasonTeamsList,
   Team,
-} from '../types.js';
+} from './types.js';
 
 const ESPN_API_ROOT = 'https://sports.core.api.espn.com/v2/sports';
 const NFL_API_ROOT = `${ESPN_API_ROOT}/football/leagues/nfl/`;

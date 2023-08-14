@@ -11,7 +11,7 @@ import {
 } from '../api/client.js';
 import { getUploadRoot, uploadJSON } from '../lib/cloud-storage.js';
 import { delayedIterator } from '../utils/index.js';
-import { JobTypes } from '../types.js';
+import { JOB_TYPES } from '../constants/index.js';
 
 const log = winston.createLogger({
   level: 'info',
@@ -22,12 +22,12 @@ const log = winston.createLogger({
     new LoggingWinston({
       projectId: process.env.GCP_PROJECT_ID,
       redirectToStdout: true,
+      labels: {
+        function: JOB_TYPES.FetchSeason,
+        module: 'function',
+      },
     }),
   ],
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.prettyPrint(),
-  ),
 });
 
 const SEASON_TYPES = {
@@ -43,7 +43,7 @@ functions.cloudEvent(
       cloudEvent,
     });
 
-    if (process.env.JOB_TYPE !== JobTypes.fetchSeason) {
+    if (process.env.JOB_TYPE !== JOB_TYPES.FetchSeason) {
       log.crit('Invalid JOB_TYPE for fetchSeason GCF', {
         envJobType: process.env.JOB_TYPE,
       });

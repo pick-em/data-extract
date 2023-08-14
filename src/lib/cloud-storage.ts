@@ -4,7 +4,7 @@ import { CloudEvent } from '@google-cloud/functions-framework';
 import { LoggingWinston } from '@google-cloud/logging-winston';
 import { Storage } from '@google-cloud/storage';
 
-import { JobTypes } from '../types.js';
+import { JOB_TYPES } from '../constants/index.js';
 
 const log = winston.createLogger({
   level: 'info',
@@ -32,7 +32,7 @@ export function getUploadRoot(
   cloudEvent: CloudEvent<MessagePublishedData>,
 ): string {
   let uploadRoot = `${process.env.JOB_TYPE}`;
-  if (process.env.JOB_TYPE === JobTypes.fetchSeason) {
+  if (process.env.JOB_TYPE === JOB_TYPES.FetchSeason) {
     uploadRoot += `/${cloudEvent.data?.message?.attributes?.seasonType}`;
   }
   uploadRoot += `/${cloudEvent.time}`;
