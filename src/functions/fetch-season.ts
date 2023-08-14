@@ -44,7 +44,7 @@ functions.cloudEvent(
     });
 
     if (process.env.JOB_TYPE !== JOB_TYPES.FetchSeason) {
-      log.crit('Invalid JOB_TYPE for fetchSeason GCF', {
+      log.error('Invalid JOB_TYPE for fetchSeason GCF', {
         envJobType: process.env.JOB_TYPE,
       });
       return;
@@ -52,7 +52,7 @@ functions.cloudEvent(
 
     const seasonType = Number(cloudEvent.data?.message?.attributes?.seasonType);
     if (!seasonType) {
-      log.crit('Invalid seasonType for fetchSeason GCF', {
+      log.error('Invalid seasonType for fetchSeason GCF', {
         seasonType,
       });
       return;
@@ -63,7 +63,7 @@ functions.cloudEvent(
     log.info('Fetching seasonWeekList', { seasonType });
     const seasonWeeks = await fetchSeasonWeekList(2023, seasonType);
     if (!seasonWeeks) {
-      log.crit('Failed to fetch seasonWeekList', { seasonType });
+      log.error('Failed to fetch seasonWeekList', { seasonType });
       return;
     }
 
@@ -82,7 +82,7 @@ functions.cloudEvent(
       log.info('Fetching seasonWeek', { $ref });
       const seasonWeek = await fetchSeasonWeek({ $ref });
       if (!seasonWeek) {
-        log.crit('Failed to fetch seasonWeek', { $ref });
+        log.error('Failed to fetch seasonWeek', { $ref });
         continue;
       }
 

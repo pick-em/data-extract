@@ -30,7 +30,7 @@ functions.cloudEvent(
     });
 
     if (process.env.JOB_TYPE !== JOB_TYPES.FetchTeams) {
-      log.crit('Invalid JOB_TYPE for fetchTeams GCF', {
+      log.error('Invalid JOB_TYPE for fetchTeams GCF', {
         envJobType: process.env.JOB_TYPE,
       });
       return;
@@ -41,7 +41,7 @@ functions.cloudEvent(
     log.info('Fetching teamsList');
     const teamsList = await fetchTeamList();
     if (!teamsList) {
-      log.crit('Failed to fetch teamsList');
+      log.error('Failed to fetch teamsList');
       return;
     }
 
