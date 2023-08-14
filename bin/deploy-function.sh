@@ -16,7 +16,7 @@ if [ $functionName = "fetchTeams" ] || [ $functionName = "fetch-teams" ]; then
     --entry-point=fetchTeams \
     --source=$HOME/Code/personal/pick-em/data-extract \
     --trigger-topic=data-extract-fetch-teams-topic-gcf \
-    --set-env-vars JOB_ID=fetch-teams \
+    --set-env-vars JOB_TYPE=fetch-teams \
     --set-env-vars GCP_PROJECT_ID=pickem-sports-dev \
     --set-env-vars GCP_DATA_EXTRACT_BUCKET_NAME=pickem-data-extract-dev \
     --no-allow-unauthenticated \
@@ -35,7 +35,7 @@ elif [ $functionName = "fetchSeason" ] || [ $functionName = "fetch-season" ]; th
     --entry-point=fetchSeason \
     --source=$HOME/Code/personal/pick-em/data-extract \
     --trigger-topic=data-extract-fetch-season-gcf \
-    --set-env-vars JOB_ID=fetch-season \
+    --set-env-vars JOB_TYPE=fetch-season \
     --set-env-vars GCP_PROJECT_ID=pickem-sports-dev \
     --set-env-vars GCP_DATA_EXTRACT_BUCKET_NAME=pickem-data-extract-dev \
     --no-allow-unauthenticated \
