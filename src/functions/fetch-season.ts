@@ -9,8 +9,9 @@ import {
   fetchSeasonWeekEventList,
   fetchEvent,
 } from '../api/client.js';
-import { uploadJSON } from '../lib/cloud-storage.js';
+import { getUploadRoot, uploadJSON } from '../lib/cloud-storage.js';
 import { delayedIterator } from '../utils/index.js';
+import { JobTypes } from '../types.js';
 
 const log = winston.createLogger({
   level: 'info',
@@ -42,25 +43,34 @@ functions.cloudEvent(
       cloudEvent,
     });
 
-    let seasonType = Number(cloudEvent.data?.message?.attributes?.seasonType);
-    if (!seasonType || !(seasonType in SEASON_TYPES)) {
-      log.warn(
-        'No season type provided. Defaulting to regular season [seasonType=2]',
-      );
-      seasonType = 2;
+    if (process.env.JOB_TYPE !== JobTypes.fetchSeason) {
+      log.crit('Invalid JOB_TYPE for fetchSeason GCF', {
+        envJobType: process.env.JOB_TYPE,
+      });
+      return;
     }
+
+    const seasonType = Number(cloudEvent.data?.message?.attributes?.seasonType);
+    if (!seasonType) {
+      log.crit('Invalid seasonType for fetchSeason GCF', {
+        seasonType,
+      });
+      return;
+    }
+
+    const fileUploadRoot = getUploadRoot(cloudEvent);
 
     log.info('Fetching seasonWeekList', { seasonType });
     const seasonWeeks = await fetchSeasonWeekList(2023, seasonType);
     if (!seasonWeeks) {
-      log.error('Failed to fetch seasonWeekList', { seasonType });
+      log.crit('Failed to fetch seasonWeekList', { seasonType });
       return;
     }
 
     try {
       log.info('Uploading seasonWeekList', { seasonType });
       await uploadJSON(
-        `season-type-${seasonType}-season-weeks.json`,
+        `${fileUploadRoot}/season-type-${seasonType}-season-weeks.json`,
         seasonWeeks,
       );
       log.info('Successfully uploaded seasonWeekList', { seasonType });
@@ -72,7 +82,7 @@ functions.cloudEvent(
       log.info('Fetching seasonWeek', { $ref });
       const seasonWeek = await fetchSeasonWeek({ $ref });
       if (!seasonWeek) {
-        log.error('Failed to fetch seasonWeek', { $ref });
+        log.crit('Failed to fetch seasonWeek', { $ref });
         continue;
       }
 
@@ -92,7 +102,7 @@ functions.cloudEvent(
           seasonWeekNumber,
         });
         await uploadJSON(
-          `season-type-${seasonType}-season-week-${seasonWeekNumber}-events.json`,
+          `${fileUploadRoot}/season-type-${seasonType}-season-week-${seasonWeekNumber}-events.json`,
           seasonWeekEvents,
         );
         log.info('Successfully uploaded seasonWeekEventsList', {
@@ -125,7 +135,7 @@ functions.cloudEvent(
             eventId: event.id,
           });
           await uploadJSON(
-            `season-type-${seasonType}-season-week-${seasonWeekNumber}-event-${event.id}.json`,
+            `${fileUploadRoot}/season-type-${seasonType}-season-week-${seasonWeekNumber}-event-${event.id}.json`,
             event,
           );
           log.info('Successfully uploaded event', {
@@ -143,5 +153,7 @@ functions.cloudEvent(
         }
       }
     }
+
+    log.info('Job finished successfully');
   },
 );

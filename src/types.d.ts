@@ -1,3 +1,21 @@
+/**
+ * 
+ * 
+ * MISC TYPES
+ * 
+ */
+export enum JobTypes {
+  fetchSeason = 'fetch-season',
+  fetchTeams = 'fetch-teams',
+}
+
+
+/**
+ * 
+ * 
+ * ESPN API CLIENT TYPEES 
+ * 
+ */
 interface GenericApiObject {
   $ref: string;
   $meta?: object;
