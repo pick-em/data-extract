@@ -1,7 +1,4 @@
-console.log(`pickem.football!!!!`);
+import 'dotenv/config';
 
-const foo: object = {
-  bar: 42,
-};
-
-console.log(foo);
+import './functions/fetch-teams.js';
+import './functions/fetch-season.js';

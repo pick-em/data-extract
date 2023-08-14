@@ -1,62 +1,59 @@
-import path from 'path';
-import fs from 'fs/promises';
-import axios from 'axios';
+import winston from 'winston';
+import functions from '@google-cloud/functions-framework';
+import { LoggingWinston } from '@google-cloud/logging-winston';
 
-import { delayedIterator, getOutputDataRootDir } from '../utils/index.js';
+import { fetchTeamList, fetchTeam } from '../api/client.js';
+import { uploadJSON } from '../lib/cloud-storage.js';
+import { delayedIterator } from '../utils/index.js';
 
-interface TeamsData {
-  count: number;
-  pageIndex: number;
-  pageSize: number;
-  pageCount: number;
-  items: TeamRef[];
-}
+const log = winston.createLogger({
+  level: 'info',
+  defaultMeta: {
+    service: `function:fetchTeams`,
+  },
+  transports: [
+    new LoggingWinston({
+      projectId: process.env.GCP_PROJECT_ID,
+      redirectToStdout: true,
+    }),
+  ],
+});
 
-interface TeamRef {
-  $ref: string;
-}
+functions.cloudEvent('fetchTeams', async (cloudEvent) => {
+  log.info('CloudEvent recieved', {
+    cloudEvent,
+  });
 
-const TEAMS_OUTPUT_DIR = path.join(getOutputDataRootDir(), '/teams');
-await fs.mkdir(TEAMS_OUTPUT_DIR, { recursive: true });
-
-(async function fetchTeams() {
-  const response = await axios.get(
-    'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/teams?limit=50',
-  );
-
-  if (response.status != 200) {
-    console.log('[fetchTeams] API Request Failed', {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    });
+  log.info('Fetching teamsList');
+  const teamsList = await fetchTeamList();
+  if (!teamsList) {
+    log.error('Failed to fetch teamsList');
     return;
   }
 
-  const data = response.data as TeamsData;
-  const teams = data.items;
-
-  for await (const team of delayedIterator(teams, 1000)) {
-    await fetchTeam(team);
-  }
-})();
-
-async function fetchTeam(team: TeamRef) {
-  const response = await axios.get(team.$ref);
-
-  if (response.status != 200) {
-    console.log('[fetchTeam] API Request Failed', {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    });
-    return;
+  try {
+    log.info('Uploading teams-list.json');
+    await uploadJSON('teams-list.json', teamsList);
+    log.info('Successfully uploaded teams-list.json');
+  } catch (error) {
+    log.error('Failed to upload teams-list.json', { error });
   }
 
-  const data = response.data;
+  for await (const { $ref } of delayedIterator(teamsList.items, 300)) {
+    log.info('Fetching team', { $ref });
+    const team = await fetchTeam({ $ref });
+    if (!team) {
+      log.warn('Failed to fetch team', { $ref });
+      continue;
+    }
 
-  await fs.writeFile(
-    `${TEAMS_OUTPUT_DIR}/${data.id}-${data.slug}.json`,
-    JSON.stringify(data),
-  );
-}
+    const uploadFilename = `${team.id}-${team.slug}.json`;
+    try {
+      log.info('Uploading team data', { team: uploadFilename });
+      await uploadJSON(uploadFilename, team);
+      log.info('Successfully uploaded teams data', { team: uploadFilename });
+    } catch (error) {
+      log.error('Failed to upload teams data', { team: uploadFilename, error });
+    }
+  }
+});

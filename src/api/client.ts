@@ -29,7 +29,7 @@ function handleError(error: any) {
   }
 }
 
-async function fetchSeason(year: number): Promise<Season | null> {
+export async function fetchSeason(year: number): Promise<Season | null> {
   const url = `/seasons/${year}`;
   try {
     const response: AxiosResponse<Season> = await axiosInstance.get(url);
@@ -40,7 +40,7 @@ async function fetchSeason(year: number): Promise<Season | null> {
   }
 }
 
-async function fetchSeasonType(
+export async function fetchSeasonType(
   year: number,
   seasonType: number,
 ): Promise<SeasonType | null> {
@@ -54,9 +54,9 @@ async function fetchSeasonType(
   }
 }
 
-async function fetchSeasonWeekList(
+export async function fetchSeasonWeekList(
   year: number,
-  seasonType: number,
+  seasonType: number | string,
 ): Promise<SeasonWeekList | null> {
   const url = `/seasons/${year}/types/${seasonType}/weeks`;
   try {
@@ -70,14 +70,25 @@ async function fetchSeasonWeekList(
   }
 }
 
-async function fetchSeasonWeek(
-  year: number,
-  seasonType: number,
-  week: number,
+interface FetchSeasonWeekOptions {
+  year?: number;
+  seasonType?: number;
+  week?: number;
+  $ref?: string;
+}
+export async function fetchSeasonWeek(
+  options: FetchSeasonWeekOptions,
 ): Promise<SeasonWeek | null> {
-  const url = `/seasons/${year}/types/${seasonType}/weeks/${week}`;
+  const { year, seasonType, week, $ref } = options;
+
   try {
-    const response: AxiosResponse<SeasonWeek> = await axiosInstance.get(url);
+    let response: AxiosResponse<SeasonWeek>;
+    if ($ref) {
+      response = await axios.get($ref);
+    } else {
+      const url = `/seasons/${year}/types/${seasonType}/weeks/${week}`;
+      response = await axiosInstance.get(url);
+    }
     return response.data;
   } catch (error) {
     handleError(error);
@@ -85,15 +96,25 @@ async function fetchSeasonWeek(
   }
 }
 
-async function fetchSeasonWeekEventList(
-  year: number,
-  seasonType: number,
-  week: number,
+interface FetchSeasonWeekEventListOptions {
+  year?: number;
+  seasonType?: number;
+  week?: number;
+  $ref?: string;
+}
+export async function fetchSeasonWeekEventList(
+  options: FetchSeasonWeekEventListOptions,
 ): Promise<SeasonWeekEventList | null> {
-  const url = `/seasons/${year}/types/${seasonType}/weeks/${week}/events`;
+  const { year, seasonType, week, $ref } = options;
+
   try {
-    const response: AxiosResponse<SeasonWeekEventList> =
-      await axiosInstance.get(url);
+    let response: AxiosResponse<SeasonWeekEventList>;
+    if ($ref) {
+      response = await axios.get($ref);
+    } else {
+      const url = `/seasons/${year}/types/${seasonType}/weeks/${week}/events`;
+      response = await axiosInstance.get(url);
+    }
     return response.data;
   } catch (error) {
     handleError(error);
@@ -101,10 +122,23 @@ async function fetchSeasonWeekEventList(
   }
 }
 
-async function fetchEvent(eventId: number): Promise<Event | null> {
-  const url = `/events/${eventId}`;
+interface FetchEventOptions {
+  eventId?: number;
+  $ref?: string;
+}
+export async function fetchEvent(
+  options: FetchEventOptions,
+): Promise<Event | null> {
+  const { eventId, $ref } = options;
+
   try {
-    const response: AxiosResponse<Event> = await axiosInstance.get(url);
+    let response: AxiosResponse<Event>;
+    if ($ref) {
+      response = await axios.get($ref);
+    } else {
+      const url = `/events/${eventId}`;
+      response = await axiosInstance.get(url);
+    }
     return response.data;
   } catch (error) {
     handleError(error);
@@ -112,11 +146,18 @@ async function fetchEvent(eventId: number): Promise<Event | null> {
   }
 }
 
-async function fetchTeamList(season?: number): Promise<SeasonTeamsList | null> {
+export async function fetchTeamList(
+  season?: number,
+): Promise<SeasonTeamsList | null> {
   const url = season ? `/seasons/${season}/teams` : `/teams`;
   try {
     const response: AxiosResponse<SeasonTeamsList> = await axiosInstance.get(
       url,
+      {
+        params: {
+          limit: 32,
+        },
+      },
     );
     return response.data;
   } catch (error) {
@@ -125,15 +166,26 @@ async function fetchTeamList(season?: number): Promise<SeasonTeamsList | null> {
   }
 }
 
-async function fetchTeam(
-  teamId: string,
-  season?: string,
+interface FetchTeamOptions {
+  teamId?: string;
+  season?: string;
+  $ref?: string;
+}
+export async function fetchTeam(
+  options: FetchTeamOptions,
 ): Promise<Team | null> {
-  const url = season
-    ? `/seasons/${season}/teams/${teamId}`
-    : `/teams/${teamId}`;
+  const { teamId, season, $ref } = options;
+
   try {
-    const response: AxiosResponse<Team> = await axiosInstance.get(url);
+    let response: AxiosResponse<Team>;
+    if ($ref) {
+      response = await axios.get($ref);
+    } else {
+      const url = season
+        ? `/seasons/${season}/teams/${teamId}`
+        : `/teams/${teamId}`;
+      response = await axiosInstance.get(url);
+    }
     return response.data;
   } catch (error) {
     handleError(error);
