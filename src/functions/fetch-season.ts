@@ -22,12 +22,12 @@ const log = winston.createLogger({
     new LoggingWinston({
       projectId: process.env.GCP_PROJECT_ID,
       redirectToStdout: true,
+      labels: {
+        function: JOB_TYPES.FetchSeason,
+        module: 'function',
+      },
     }),
   ],
-  format: winston.format.combine(
-    winston.format.timestamp(),
-    winston.format.prettyPrint(),
-  ),
 });
 
 const SEASON_TYPES = {

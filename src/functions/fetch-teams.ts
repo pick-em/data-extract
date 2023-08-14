@@ -10,13 +10,14 @@ import { JOB_TYPES } from '../constants/index.js';
 
 const log = winston.createLogger({
   level: 'info',
-  defaultMeta: {
-    service: `function:fetchTeams`,
-  },
   transports: [
     new LoggingWinston({
       projectId: process.env.GCP_PROJECT_ID,
       redirectToStdout: true,
+      labels: {
+        function: JOB_TYPES.FetchTeams,
+        module: 'function',
+      },
     }),
   ],
 });
@@ -28,7 +29,7 @@ functions.cloudEvent(
       cloudEvent,
     });
 
-    if (process.env.JOB_TYPE !== JOB_TYPES.FetchSeason) {
+    if (process.env.JOB_TYPE !== JOB_TYPES.FetchTeams) {
       log.crit('Invalid JOB_TYPE for fetchTeams GCF', {
         envJobType: process.env.JOB_TYPE,
       });
