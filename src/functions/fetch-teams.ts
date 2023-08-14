@@ -6,7 +6,7 @@ import { MessagePublishedData } from '@google/events/cloud/pubsub/v1/MessagePubl
 import { fetchTeamList, fetchTeam } from '../api/client.js';
 import { getUploadRoot, uploadJSON } from '../lib/cloud-storage.js';
 import { delayedIterator } from '../utils/index.js';
-import { JobTypes } from '../types.js';
+import { JOB_TYPES } from '../constants/index.js';
 
 const log = winston.createLogger({
   level: 'info',
@@ -28,7 +28,7 @@ functions.cloudEvent(
       cloudEvent,
     });
 
-    if (process.env.JOB_TYPE !== JobTypes.fetchSeason) {
+    if (process.env.JOB_TYPE !== JOB_TYPES.FetchSeason) {
       log.crit('Invalid JOB_TYPE for fetchTeams GCF', {
         envJobType: process.env.JOB_TYPE,
       });
